@@ -1,0 +1,58 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex"><title>Cube Phonics 2 · Chants</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#2b2533;--grape:#0B7A70;--bg:#EFFAF8;color-scheme:light}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Andika,"Century Gothic",sans-serif}
+header{background:linear-gradient(135deg,#19C2AE,#0B7A70);color:#fff;padding:18px 16px 16px;text-align:center}
+header h1{margin:0;font:700 clamp(24px,6vw,34px)/1.1 Fredoka,sans-serif}header p{margin:6px 0 0;opacity:.9;font-size:14px}
+main{width:min(900px,100%);margin:0 auto;padding:14px 16px 40px}
+.player{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0 12px}
+.now{display:flex;align-items:center;gap:10px;margin:0 0 8px;font:700 18px Fredoka,sans-serif}
+.now .pg{margin-left:auto;font:400 13px Andika;color:#6d6478}
+.frame{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:#1b1622;box-shadow:0 12px 30px -16px rgba(0,0,0,.5)}
+.frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.soon{position:absolute;inset:0;display:grid;place-items:center;color:#fff;text-align:center;padding:20px;
+ background:linear-gradient(160deg,#159C8F,#2b2533);font:700 20px Fredoka,sans-serif}.soon span{display:block;font:400 14px Andika;opacity:.85;margin-top:6px}
+.ctrl{display:flex;gap:8px;margin-top:10px}.ctrl button{flex:1;border:0;border-radius:12px;padding:12px;font:700 16px Fredoka,sans-serif;
+ background:#fff;color:var(--grape);box-shadow:0 2px 0 #cfe9e4;cursor:pointer}.ctrl button:disabled{opacity:.4}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}
+.tabs button{flex:none;border:0;border-radius:999px;padding:9px 14px;background:#fff;color:var(--grape);font:700 15px Fredoka,sans-serif;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--grape);color:#fff}
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.item{display:flex;flex-direction:column;gap:4px;text-align:left;border:0;border-radius:14px;padding:12px 14px;background:#fff;cursor:pointer;
+ border-left:6px solid var(--c);font-family:inherit;color:inherit;box-shadow:0 2px 0 #d9efeb}
+.item b{font:700 22px Andika,sans-serif;color:var(--c)}.item small{color:#6d6478}.item.on{outline:3px solid var(--c)}
+.item.off b::after{content:" · 곧 올라와요";font:400 12px Andika;color:#9b93a6}
+</style></head><body>
+<header><h1>Unit 3 · Story Chant</h1><p>I like!</p></header>
+<main>
+<section class="player"><div class="now"><span id="t"></span><span class="pg" id="pg"></span></div>
+<div class="frame" id="f"></div>
+<div class="ctrl" id="ctrl"><button id="prev">&#9664; 이전</button><button id="next">다음 &#9654;</button></div></section>
+<nav class="tabs" id="tabs" role="tablist"></nav>
+<section class="list" id="list"></section>
+</main>
+<script>
+const ITEMS=[{"unit": 3, "slug": "3-story", "label": "I like!", "kind": "Story Chant", "page": 31, "color": "#7B4FA8", "vid": "e6B2j_-LAvE"}];
+let cur=0;
+const $=id=>document.getElementById(id);
+function play(i,scroll){cur=i;const it=ITEMS[i];
+ $('t').textContent='Unit '+it.unit+' · '+it.label; $('pg').textContent=it.kind+' · p.'+it.page;
+ $('f').innerHTML=it.vid?'<iframe src="https://www.youtube-nocookie.com/embed/'+it.vid+'?rel=0&modestbranding=1&playsinline=1&autoplay=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>'
+  :'<div class="soon"><div>Unit '+it.unit+' · '+it.label+'<span>영상이 곧 올라와요</span></div></div>';
+ $('prev').disabled=i==0;$('next').disabled=i==ITEMS.length-1;
+ showUnit(it.unit);history.replaceState(null,'','#'+it.slug);
+ if(scroll)window.scrollTo({top:0,behavior:'smooth'});}
+function showUnit(u){[...$('tabs').children].forEach(b=>b.setAttribute('aria-selected',b.dataset.u==u));
+ $('list').innerHTML=ITEMS.map((it,i)=>it.unit!=u?'':'<button class="item'+(it.vid?'':' off')+(i==cur?' on':'')+'" style="--c:'+it.color+'" onclick="play('+i+',1)"><small>'+it.kind+' · p.'+it.page+'</small><b>'+it.label+'</b></button>').join('');}
+const UNITS=[...new Set(ITEMS.map(x=>x.unit))];
+if(UNITS.length<2)$('tabs').style.display='none';
+if(ITEMS.length<2){$('list').style.display='none';$('ctrl').style.display='none';}
+$('tabs').innerHTML=UNITS.map(u=>'<button role="tab" data-u="'+u+'" onclick="showUnit('+u+')">Unit '+u+'</button>').join('');
+$('prev').onclick=()=>play(cur-1);$('next').onclick=()=>play(cur+1);
+const h=location.hash.slice(1),k=ITEMS.findIndex(x=>x.slug==h);
+cur=k<0?0:k; play(cur); /* 첫 화면은 자동재생하지 않도록 iframe 은 누른 뒤에만 autoplay 가 먹는다 */
+</script></body></html>
